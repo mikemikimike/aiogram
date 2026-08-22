@@ -31,10 +31,12 @@ from aiogram.methods import (
     SendLocation,
     SendMediaGroup,
     SendMessage,
+    SendMessageDraft,
     SendPaidMedia,
     SendPhoto,
     SendPoll,
     SendRichMessage,
+    SendRichMessageDraft,
     SendSticker,
     SendVenue,
     SendVideo,
@@ -1254,6 +1256,37 @@ class TestMessage:
         assert rich_draft.chat_id == 42
         assert rich_draft.draft_id == 4
         assert rich_draft.message_thread_id == 7
+
+    @pytest.mark.parametrize("alias_name", ["answer_draft", "reply_draft"])
+    def test_text_draft_shortcuts_forward_arguments(self, alias_name: str):
+        message = Message(
+            message_id=42, chat=Chat(id=42, type="private"), date=datetime.datetime.now()
+        )
+
+        draft = getattr(message, alias_name)(
+            draft_id=3, text="partial", entities=[], custom_option="value"
+        )
+
+        assert isinstance(draft, SendMessageDraft)
+        assert draft.message_thread_id is None
+        assert draft.entities == []
+        assert draft.custom_option == "value"
+
+    @pytest.mark.parametrize("alias_name", ["answer_rich_draft", "reply_rich_draft"])
+    def test_rich_draft_shortcuts_forward_arguments(self, alias_name: str):
+        message = Message(
+            message_id=42, chat=Chat(id=42, type="private"), date=datetime.datetime.now()
+        )
+        rich_message = InputRichMessage(html="<p>partial</p>")
+
+        draft = getattr(message, alias_name)(
+            draft_id=4, rich_message=rich_message, custom_option="value"
+        )
+
+        assert isinstance(draft, SendRichMessageDraft)
+        assert draft.rich_message == rich_message
+        assert draft.message_thread_id is None
+        assert draft.custom_option == "value"
 
     def test_draft_shortcuts_require_chat(self):
         message = Message.model_construct(message_id=42, chat=None)
