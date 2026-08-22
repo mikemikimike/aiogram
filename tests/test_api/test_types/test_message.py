@@ -1233,6 +1233,33 @@ class TestMessage:
         assert method.receiver_user_id is None
         assert method.reply_parameters.message_id == message.message_id
 
+    def test_draft_shortcuts_fill_message_context(self):
+        message = Message(
+            message_id=42,
+            chat=Chat(id=42, type="private"),
+            date=datetime.datetime.now(),
+            message_thread_id=7,
+            is_topic_message=True,
+        )
+
+        draft = message.answer_draft(draft_id=3, text="partial")
+        assert draft.chat_id == 42
+        assert draft.draft_id == 3
+        assert draft.message_thread_id == 7
+        assert draft.text == "partial"
+
+        rich_draft = message.reply_rich_draft(
+            draft_id=4, rich_message=InputRichMessage(html="<p>partial</p>")
+        )
+        assert rich_draft.chat_id == 42
+        assert rich_draft.draft_id == 4
+        assert rich_draft.message_thread_id == 7
+
+    def test_draft_shortcuts_require_chat(self):
+        message = Message.model_construct(message_id=42, chat=None)
+        with pytest.raises(AssertionError, match="chat is present"):
+            message.answer_draft(draft_id=1, text="partial")
+
     def test_reply_does_not_accept_receiver_user_id(self):
         # `receiver_user_id` is filled from the message itself, so it is intentionally
         # not accepted here. Sending an ephemeral message in reply to a regular one is

@@ -44,6 +44,7 @@ if TYPE_CHECKING:
         SendLocation,
         SendMediaGroup,
         SendMessage,
+        SendMessageDraft,
         SendPaidMedia,
         SendPhoto,
         SendPoll,
@@ -5269,6 +5270,64 @@ class Message(MaybeInaccessibleMessage):
             reply_markup=reply_markup,
             **kwargs,
         ).as_(self._bot)
+
+    def answer_draft(
+        self,
+        draft_id: int,
+        text: str | None = None,
+        parse_mode: str | Default | None = Default("parse_mode"),
+        entities: list[MessageEntity] | None = None,
+        **kwargs: Any,
+    ) -> SendMessageDraft:
+        """Shortcut for :class:`aiogram.methods.send_message_draft.SendMessageDraft`."""
+        from aiogram.methods import SendMessageDraft
+
+        assert self.chat is not None, (
+            "This method can be used only if chat is present in the message."
+        )
+        return SendMessageDraft(
+            chat_id=self.chat.id,
+            draft_id=draft_id,
+            message_thread_id=self.message_thread_id if self.is_topic_message else None,
+            text=text,
+            parse_mode=parse_mode,
+            entities=entities,
+            **kwargs,
+        ).as_(self._bot)
+
+    def reply_draft(
+        self,
+        draft_id: int,
+        text: str | None = None,
+        parse_mode: str | Default | None = Default("parse_mode"),
+        entities: list[MessageEntity] | None = None,
+        **kwargs: Any,
+    ) -> SendMessageDraft:
+        """Shortcut for :class:`aiogram.methods.send_message_draft.SendMessageDraft`."""
+        return self.answer_draft(draft_id, text, parse_mode, entities, **kwargs)
+
+    def answer_rich_draft(
+        self, draft_id: int, rich_message: InputRichMessage, **kwargs: Any
+    ) -> SendRichMessageDraft:
+        """Shortcut for :class:`aiogram.methods.send_rich_message_draft.SendRichMessageDraft`."""
+        from aiogram.methods import SendRichMessageDraft
+
+        assert self.chat is not None, (
+            "This method can be used only if chat is present in the message."
+        )
+        return SendRichMessageDraft(
+            chat_id=self.chat.id,
+            draft_id=draft_id,
+            rich_message=rich_message,
+            message_thread_id=self.message_thread_id if self.is_topic_message else None,
+            **kwargs,
+        ).as_(self._bot)
+
+    def reply_rich_draft(
+        self, draft_id: int, rich_message: InputRichMessage, **kwargs: Any
+    ) -> SendRichMessageDraft:
+        """Shortcut for :class:`aiogram.methods.send_rich_message_draft.SendRichMessageDraft`."""
+        return self.answer_rich_draft(draft_id, rich_message, **kwargs)
 
     def reply_rich(
         self,

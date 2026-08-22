@@ -1,0 +1,1 @@
+Add message shortcuts for streaming text and rich message drafts.
