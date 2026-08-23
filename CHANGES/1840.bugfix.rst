@@ -1,0 +1,1 @@
+Allow deserializing legacy hidden-user message origins without a sender user name.
