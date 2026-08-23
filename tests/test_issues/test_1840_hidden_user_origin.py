@@ -7,6 +7,14 @@ def test_message_origin_hidden_user_allows_missing_sender_user_name() -> None:
     assert origin.sender_user_name is None
 
 
+def test_message_origin_hidden_user_preserves_sender_user_name() -> None:
+    origin = MessageOriginHiddenUser.model_validate(
+        {"type": "hidden_user", "date": 1422450181, "sender_user_name": "Alice"}
+    )
+
+    assert origin.sender_user_name == "Alice"
+
+
 def test_update_with_legacy_hidden_user_origin_is_deserialized() -> None:
     update = Update.model_validate(
         {
